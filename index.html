@@ -6114,9 +6114,7 @@
             elBtnManageWeapons.addEventListener('click', () => {
                 elWeaponsModal.classList.add('show');
                 elWeaponsModal.setAttribute('aria-hidden', 'false');
-                if (window.loadWeaponTemplates) {
-                    window.loadWeaponTemplates(currentWeaponsData);
-                }
+                sendToCpp("request_weapon_sync", {});
             });
         }
 
