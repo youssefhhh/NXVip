@@ -5677,6 +5677,8 @@
         const elRecoilFill = document.getElementById('recoil-range-fill');
         const elRecoilVal = document.getElementById('lbl-recoil-strength');
 
+        let _syncingFromCpp = false;
+
         elRecoilBtn.addEventListener('click', () => {
             AppState.isRecoilStabilizerActive = !AppState.isRecoilStabilizerActive;
             triggerRecoilStabilizerState(AppState.isRecoilStabilizerActive);
@@ -5685,7 +5687,9 @@
         function triggerRecoilStabilizerState(isActive) {
             AppState.isRecoilStabilizerActive = isActive;
 
-            sendToCpp("toggle_recoil_stabilizer", { enabled: isActive });
+            if (!_syncingFromCpp) {
+                sendToCpp("toggle_recoil_stabilizer", { enabled: isActive ? 1 : 0 });
+            }
 
             if (isActive) {
                 elRecoilBtn.textContent = "Recoil stabilizer ON [F9]";
@@ -6007,12 +6011,16 @@
                 // Toggle switch container
                 const switchLabel = document.createElement('label');
                 switchLabel.className = 'switch-container';
-                switchLabel.style = 'display: flex; align-items: center; gap: 6px; cursor: pointer;';
+                switchLabel.style = 'display: flex; align-items: center; gap: 6px; cursor: pointer; position: relative;';
 
                 const toggleInput = document.createElement('input');
                 toggleInput.type = 'checkbox';
                 toggleInput.checked = hasCustom;
-                toggleInput.style.display = 'none';
+                toggleInput.style.opacity = '0';
+                toggleInput.style.width = '0';
+                toggleInput.style.height = '0';
+                toggleInput.style.position = 'absolute';
+                toggleInput.style.pointerEvents = 'none';
 
                 const switchBg = document.createElement('div');
                 switchBg.className = 'switch-bg';
@@ -6379,7 +6387,9 @@
 
             // Update Recoil active status triggered from C++ key hooks
             setRecoilActive: function (isActive) {
+                _syncingFromCpp = true;
                 triggerRecoilStabilizerState(isActive);
+                _syncingFromCpp = false;
             },
 
             setRecoilConfig: function (mode, friendlyName, scopeOnly) {
