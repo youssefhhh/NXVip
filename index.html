@@ -5816,7 +5816,7 @@
         window.showCaptureOverlay = function () {
             if (!elCaptureOverlay || !elCaptureScreenshot) return;
             elCaptureOverlay.style.display = 'flex';
-            elCaptureScreenshot.src = "game_capture.png?t=" + Date.now();
+            elCaptureScreenshot.src = (window.chrome && window.chrome.webview ? "https://local.nxvip/" : "") + "game_capture.png?t=" + Date.now();
             if (elSelectionBox) elSelectionBox.style.display = 'none';
             if (elBtnConfirmCrop) elBtnConfirmCrop.style.display = 'none';
             isDrawingCrop = false;
@@ -5824,7 +5824,7 @@
 
         window.updateTemplatePreview = function () {
             if (elImgScopeTemplate) {
-                elImgScopeTemplate.src = "scope_template.png?t=" + Date.now();
+                elImgScopeTemplate.src = (window.chrome && window.chrome.webview ? "https://local.nxvip/" : "") + "scope_template.png?t=" + Date.now();
                 if (elScopePreviewContainer) elScopePreviewContainer.style.display = 'block';
             }
         };
@@ -5986,7 +5986,7 @@
                 left.className = 'weapon-profile-left';
 
                 const preview = document.createElement('img');
-                preview.src = `WeaponTemplates/${name}.png?t=${Date.now()}`;
+                preview.src = `${window.chrome && window.chrome.webview ? "https://local.nxvip/" : ""}WeaponTemplates/${name}.png?t=${Date.now()}`;
                 preview.className = 'weapon-profile-preview';
                 preview.alt = name;
 
