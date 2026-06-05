@@ -1213,6 +1213,30 @@
             transform: translateY(-1px);
         }
 
+        .btn-kill-emulator {
+            width: 100%;
+            height: 42px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--ease);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(248, 113, 113, 0.05);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: var(--bad);
+            margin-top: 8px;
+        }
+
+        .btn-kill-emulator:hover {
+            background: rgba(248, 113, 113, 0.15);
+            border-color: var(--bad);
+            box-shadow: 0 0 12px rgba(248, 113, 113, 0.25);
+        }
+
         .gfx-action-buttons {
             display: flex;
             flex-direction: column;
@@ -3886,6 +3910,11 @@
                                             Apply
                                         </button>
                                     </div>
+                                    <div>
+                                        <button id="btn-kill-emulator" class="btn-kill-emulator" type="button">
+                                            Kill Emulator
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="status-box">
@@ -5134,6 +5163,32 @@
                 showToast("Applied", "");
             }, 3000);
         });
+
+        // Kill Emulator Action
+        const elKillEmulatorBtn = document.getElementById('btn-kill-emulator');
+        if (elKillEmulatorBtn) {
+            elKillEmulatorBtn.addEventListener('click', () => {
+                appendLog("Killing emulator processes...");
+                
+                // Immediately update connect button status to "Connect" in UI
+                if (window.NXUpdateState) {
+                    window.NXUpdateState.setConnected(false, "Killing emulator...", "");
+                }
+
+                sendToCpp("kill_emulator", {});
+
+                // Show loader
+                elSysLoader.style.display = 'flex';
+                elLoaderTitle.textContent = "Killing Emulator";
+                elLoaderDesc.textContent = "Stopping all active emulator processes...";
+
+                setTimeout(() => {
+                    elSysLoader.style.display = 'none';
+                    appendLog("Emulator processes terminated.");
+                    showToast("Emulator Killed", "All emulator processes stopped successfully!");
+                }, 2000);
+            });
+        }
 
         /* ==========================================================
            F. TOAST NOTIFICATION GENERATOR
@@ -6438,8 +6493,49 @@
 
             setSocialLinks: function (links) {
                 applySocialLinks(links);
+            },
+
+            // Reflect current game GFX state in the UI (called after Connect succeeds)
+            // quality = ArtQuality (1-7), fps = FPSLevel (1-8+), style = BattleRenderStyle (1-5)
+            // Pass -1 for any value to leave that group unchanged
+            setGfxState: function (quality, fps, style) {
+                const selectGroup = (groupId, val) => {
+                    if (val < 0) return; // -1 means unknown, skip
+                    const btns = document.querySelectorAll(`.option-btn[data-grp="${groupId}"]`);
+                    let matched = false;
+                    btns.forEach(b => {
+                        const bVal = parseInt(b.dataset.val, 10);
+                        if (bVal === val) {
+                            b.classList.add('selected');
+                            matched = true;
+                        } else {
+                            b.classList.remove('selected');
+                        }
+                    });
+                    // If no exact match, just leave selection unchanged
+                    if (!matched && btns.length > 0) {
+                        // Try to find closest (for fps mapping quirks)
+                        let closest = null, closestDiff = Infinity;
+                        btns.forEach(b => {
+                            const diff = Math.abs(parseInt(b.dataset.val, 10) - val);
+                            if (diff < closestDiff) { closestDiff = diff; closest = b; }
+                        });
+                        if (closest) {
+                            btns.forEach(b => b.classList.remove('selected'));
+                            closest.classList.add('selected');
+                        }
+                    }
+                };
+
+                selectGroup(1, quality);  // grp-gfx-quality  (ArtQuality 1-7)
+                selectGroup(2, fps);      // grp-fps           (FPSLevel 1-8)
+                selectGroup(3, style);    // grp-style         (BattleRenderStyle 1-5)
+
+                appendLog(`GFX sync: quality=${quality}, fps=${fps}, style=${style}`);
+                showToast('GFX Synced', 'Current game settings loaded.', false);
             }
         };
+
 
         // Simulated Login Validation Logic
         const elLoginScreen = document.getElementById('login-screen');
