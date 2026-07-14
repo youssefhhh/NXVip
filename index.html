@@ -3964,7 +3964,6 @@
                                         <button class="option-btn" data-grp="1" data-val="4">HD</button>
                                         <button class="option-btn" data-grp="1" data-val="5">HDR</button>
                                         <button class="option-btn" data-grp="1" data-val="6">Ultra HD</button>
-                                        <button class="option-btn" data-grp="1" data-val="7">Extreme HDR</button>
                                     </div>
                                 </div>
                             </div>
@@ -4500,29 +4499,6 @@
                                         type="button">Always</button>
                                     <button class="option-btn" id="btn-scope-only" type="button">Scope Only</button>
                                 </div>
-                                <input type="text" id="txt-scope-type-name" placeholder="Scope name (e.g. 4x, Red Dot)"
-                                    style="margin-top: 6px; width: 100%; height: 28px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 8px; color: var(--text); font-family: var(--font); font-size: 0.72rem; outline: none; transition: var(--ease); display: none; box-sizing: border-box;"
-                                    onfocus="this.style.borderColor='var(--accent)'"
-                                    onblur="this.style.borderColor='var(--line)'">
-                                <button class="option-btn" id="btn-capture-scope"
-                                    style="margin-top: 6px; font-size: 0.72rem; padding: 4px 8px; border: 1px dashed var(--accent); background: rgba(255, 77, 109, 0.05); color: var(--accent); display: none; height: 32px;"
-                                    type="button"
-                                    title="Type a scope name above (e.g. 4x), then click to capture the badge">
-                                    Capture Scope View
-                                </button>
-                                <div id="scope-preview-container"
-                                    style="margin-top: 8px; display: none; text-align: center;">
-                                    <span class="section-label" style="font-size: 0.68rem; opacity: 0.7;">Active
-                                        Template:</span>
-                                    <div
-                                        style="margin-top: 4px; display: inline-block; padding: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px;">
-                                        <img id="img-scope-template" src="scope_template.png"
-                                            style="max-width: 90px; max-height: 90px; display: block; border-radius: 2px;"
-                                            alt="Scope template"
-                                            onerror="this.parentElement.parentElement.style.display='none';"
-                                            onload="this.parentElement.parentElement.style.display='block';">
-                                    </div>
-                                </div>
                             </div>
 
                             <!-- Key Combination Recorder -->
@@ -4562,18 +4538,6 @@
                                 </div>
                             </div>
 
-                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
-                                <input type="text" id="txt-weapon-name" placeholder="Weapon name (e.g. M416)"
-                                    style="flex: 1; height: 32px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 10px; color: var(--text); font-family: var(--font); font-size: 0.78rem; outline: none; transition: var(--ease);"
-                                    onfocus="this.style.borderColor='var(--accent)'"
-                                    onblur="this.style.borderColor='var(--line)'">
-                                <button class="option-btn" id="btn-capture-weapon" type="button"
-                                    style="font-size: 0.72rem; padding: 0 12px; border: 1px dashed var(--accent); background: rgba(255, 77, 109, 0.05); color: var(--accent); height: 32px;"
-                                    title="Auto-capture weapon silhouette (NXVipPY method)">
-                                    Add & Capture
-                                </button>
-                            </div>
-
                             <!-- Scrollable list of weapon profiles -->
                             <div id="weapon-profiles-list"
                                 style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
@@ -4585,6 +4549,12 @@
                                 onmouseover="this.style.background='var(--btn-hover-bg)'; this.style.color='var(--text-white)'"
                                 onmouseout="this.style.background='var(--surface-2)'; this.style.color='var(--text-gray)'">
                                 ⚙ Manage Custom Recoils
+                            </button>
+                            <button class="option-btn" id="btn-select-weapon-roi" type="button"
+                                style="width: 100%; font-size: 0.78rem; height: 34px; border: 1px dashed var(--accent); background: rgba(255, 77, 109, 0.05); color: var(--accent); border-radius: var(--radius-sm); cursor: pointer; transition: var(--ease); font-family: var(--font); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 6px;"
+                                onmouseover="this.style.background='rgba(255, 77, 109, 0.1)';"
+                                onmouseout="this.style.background='rgba(255, 77, 109, 0.05)';">
+                                🎯 Select Weapon Area (تحديد منطقة السلاح)
                             </button>
                         </div>
 
@@ -4603,19 +4573,6 @@
                                 </div>
                             </div>
 
-                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
-                                <input type="text" id="txt-scope-capture-name"
-                                    placeholder="Scope name (e.g. 4x, holo, red)"
-                                    style="flex: 1; height: 32px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 10px; color: var(--text); font-family: var(--font); font-size: 0.78rem; outline: none; transition: var(--ease);"
-                                    onfocus="this.style.borderColor='var(--accent)'"
-                                    onblur="this.style.borderColor='var(--line)'">
-                                <button class="option-btn" id="btn-capture-scope-type" type="button"
-                                    style="font-size: 0.72rem; padding: 0 12px; border: 1px dashed var(--accent); background: rgba(255, 77, 109, 0.05); color: var(--accent); height: 32px; white-space: nowrap;"
-                                    title="Equip the scope in game, enter its name, then capture automatically (NXVipPY method)">
-                                    Add & Capture
-                                </button>
-                            </div>
-
                             <div id="scope-types-list"
                                 style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
                             </div>
@@ -4625,6 +4582,12 @@
                                 onmouseover="this.style.background='var(--btn-hover-bg)'; this.style.color='var(--text-white)'"
                                 onmouseout="this.style.background='var(--surface-2)'; this.style.color='var(--text-gray)'">
                                 Manage Scope Types
+                            </button>
+                            <button class="option-btn" id="btn-select-scope-roi" type="button"
+                                style="width: 100%; font-size: 0.78rem; height: 34px; border: 1px dashed var(--accent); background: rgba(255, 77, 109, 0.05); color: var(--accent); border-radius: var(--radius-sm); cursor: pointer; transition: var(--ease); font-family: var(--font); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 6px;"
+                                onmouseover="this.style.background='rgba(255, 77, 109, 0.1)';"
+                                onmouseout="this.style.background='rgba(255, 77, 109, 0.05)';">
+                                🎯 Select Scope Area (تحديد منطقة السكوب)
                             </button>
                         </div>
 
@@ -5295,6 +5258,12 @@
             const fps = document.querySelector('#grp-fps .option-btn.selected').dataset.val;
             const style = document.querySelector('#grp-style .option-btn.selected').dataset.val;
             const shadows = document.querySelector('#grp-shadows .option-btn.selected').dataset.val;
+
+            // Save selected choices to localStorage to remember preference
+            localStorage.setItem('nx_gfx_quality', quality);
+            localStorage.setItem('nx_gfx_fps', fps);
+            localStorage.setItem('nx_gfx_style', style);
+            localStorage.setItem('nx_gfx_shadows', shadows);
 
             sendToCpp("apply_gfx", {
                 version: parseInt(version),
@@ -6180,6 +6149,22 @@
             });
         }
 
+        const elBtnSelectWeaponRoi = document.getElementById('btn-select-weapon-roi');
+        if (elBtnSelectWeaponRoi) {
+            elBtnSelectWeaponRoi.addEventListener('click', () => {
+                sendToCpp("capture_weapon_template", { name: "select_roi" });
+                showToast("ROI Selection", "Sizing window... Drag to select weapon slot area, then press SPACE.");
+            });
+        }
+
+        const elBtnSelectScopeRoi = document.getElementById('btn-select-scope-roi');
+        if (elBtnSelectScopeRoi) {
+            elBtnSelectScopeRoi.addEventListener('click', () => {
+                sendToCpp("capture_scope_template", { name: "select_roi" });
+                showToast("ROI Selection", "Sizing window... Drag to select scope text area, then press SPACE.");
+            });
+        }
+
         let currentWeaponsData = [];
         let expandedWeaponName = null;
 
@@ -6893,11 +6878,38 @@
                     }
                 };
 
-                selectGroup(1, quality);  // grp-gfx-quality  (ArtQuality 1-7)
-                selectGroup(2, fps);      // grp-fps           (FPSLevel 1-8)
-                selectGroup(3, style);    // grp-style         (BattleRenderStyle 1-5)
+                // Map raw FPSLevel (2-8) to HTML data-val (1-5)
+                let mappedFps = 3; // Default 60 FPS
+                if (fps === 2) mappedFps = 1;      // 30 FPS
+                else if (fps === 3) mappedFps = 2; // 40 FPS
+                else if (fps === 4) mappedFps = 3; // 60 FPS
+                else if (fps === 5) mappedFps = 3; // 60 FPS
+                else if (fps === 6) mappedFps = 4; // 90 FPS
+                else if (fps === 7) mappedFps = 4; // 90 FPS
+                else if (fps === 8) mappedFps = 5; // 120 FPS
 
-                appendLog(`GFX sync: quality=${quality}, fps=${fps}, style=${style}`);
+                // Map BattleRenderStyle (6 -> 5 for Movie)
+                let mappedStyle = style;
+                if (style === 6) mappedStyle = 5;
+
+                // Override with last user selected values if present in localStorage!
+                const localQuality = localStorage.getItem('nx_gfx_quality');
+                const localFps = localStorage.getItem('nx_gfx_fps');
+                const localStyle = localStorage.getItem('nx_gfx_style');
+                const localShadows = localStorage.getItem('nx_gfx_shadows');
+
+                const finalQuality = localQuality ? parseInt(localQuality, 10) : quality;
+                const finalFps = localFps ? parseInt(localFps, 10) : mappedFps;
+                const finalStyle = localStyle ? parseInt(localStyle, 10) : mappedStyle;
+
+                selectGroup(1, finalQuality);     // grp-gfx-quality
+                selectGroup(2, finalFps);         // grp-fps
+                selectGroup(3, finalStyle);       // grp-style
+                if (localShadows) {
+                    selectGroup(4, parseInt(localShadows, 10)); // grp-shadows
+                }
+
+                appendLog(`GFX sync: quality=${quality} (final:${finalQuality}), fps=${fps} (final:${finalFps}), style=${style} (final:${finalStyle})`);
                 showToast('GFX Synced', 'Current game settings loaded.', false);
             }
         };
@@ -7249,13 +7261,7 @@
             let planName = subName || "Premium Access";
             // Clean up plan name if it contains array brackets/quotes
             planName = planName.replace(/[\[\]\"\'\{\}]/g, '').trim();
-            if (planName === "" || planName.toLowerCase() === "default" || planName === "1" || planName.toLowerCase() === "level 1" || planName.toLowerCase() === "level1") {
-                planName = "VIP Tier 1 (Default)";
-            } else if (planName === "2" || planName.toLowerCase() === "level 2" || planName.toLowerCase() === "level2") {
-                planName = "VIP Tier 2";
-            } else if (planName === "3" || planName.toLowerCase() === "level 3" || planName.toLowerCase() === "level3") {
-                planName = "VIP Tier 3 (Ultimate)";
-            }
+            if (planName === "" || planName.toLowerCase() === "default") planName = "VIP Tier 1";
             document.getElementById('lic-info-level').textContent = planName;
 
             document.getElementById('lic-info-ip').textContent = maskIP(ip);
@@ -7309,20 +7315,35 @@
             window.NXExpiryInterval = setInterval(updateTimeRemaining, 60000);
         };
 
+        // Restore GFX settings from localStorage on startup
+        const localQuality = localStorage.getItem('nx_gfx_quality');
+        const localFps = localStorage.getItem('nx_gfx_fps');
+        const localStyle = localStorage.getItem('nx_gfx_style');
+        const localShadows = localStorage.getItem('nx_gfx_shadows');
+
+        const selectGroupInitial = (groupId, val) => {
+            if (!val) return;
+            const btns = document.querySelectorAll(`.option-btn[data-grp="${groupId}"]`);
+            btns.forEach(b => {
+                if (b.dataset.val === val.toString()) {
+                    b.classList.add('selected');
+                } else {
+                    b.classList.remove('selected');
+                }
+            });
+        };
+
+        if (localQuality) selectGroupInitial(1, localQuality);
+        if (localFps) selectGroupInitial(2, localFps);
+        if (localStyle) selectGroupInitial(3, localStyle);
+        if (localShadows) selectGroupInitial(4, localShadows);
+
         updateHomeStatus();
         scrollActivityLogToBottom();
 
         // Send UI Ready notification to C++ backend
         sendToCpp("ui_ready", {});
     </script>
-</body>
-
-</html> updateHomeStatus();
-scrollActivityLogToBottom();
-
-// Send UI Ready notification to C++ backend
-sendToCpp("ui_ready", {});
-</script>
 </body>
 
 </html>
