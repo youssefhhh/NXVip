@@ -4559,7 +4559,7 @@
                         </div>
 
                         <!-- Scope Type Recognition -->
-                        <div class="slider-section"
+                        <div id="scope-type-recognition-section" class="slider-section"
                             style="margin-top: 15px; border-top: 1px dashed var(--line); padding-top: 15px;">
                             <span class="section-label"
                                 style="font-size: 0.85rem; font-weight: 600; color: var(--accent); display: block; margin-bottom: 8px;">Scope
@@ -6224,11 +6224,13 @@
             return { root: switchLabel, input: toggleInput, paint };
         }
 
-        window.loadWeaponTemplates = function (list) {
+        window.loadWeaponTemplates = function (list, level) {
+            level = level || 3;
             currentWeaponsData = list || [];
             const globalSlider = document.getElementById('recoil-strength-slider');
             const globalPull = globalSlider ? parseInt(globalSlider.value) : 10;
             const assetBase = window.chrome && window.chrome.webview ? "https://local.nxvip/" : "";
+            const isLevel2 = (level < 3);
 
             const badgeContainer = document.getElementById('weapon-profiles-list');
             if (badgeContainer) {
@@ -6238,9 +6240,10 @@
                 } else {
                     currentWeaponsData.forEach(item => {
                         const customScopes = (item.scopes || []).filter(s => s.enabled === 1 || s.enabled === true).length;
+                        const isCustom = isLevel2 ? (item.strength > 0) : (customScopes > 0);
                         const badge = document.createElement('div');
-                        badge.className = 'weapon-badge' + (customScopes > 0 ? ' active-custom' : '');
-                        badge.textContent = item.name + (customScopes > 0 ? ` (${customScopes} scopes)` : ' (Global)');
+                        badge.className = 'weapon-badge' + (isCustom ? ' active-custom' : '');
+                        badge.textContent = item.name + (isCustom ? ' (Custom)' : ' (Global)');
                         badgeContainer.appendChild(badge);
                     });
                 }
@@ -6258,8 +6261,9 @@
             currentWeaponsData.forEach(item => {
                 const name = item.name;
                 const scopes = item.scopes || [];
+                const weaponStrength = item.strength > 0 ? item.strength : globalPull;
                 const customCount = scopes.filter(s => s.enabled === 1 || s.enabled === true).length;
-                const hasCustom = customCount > 0;
+                const hasCustom = isLevel2 ? (item.strength > 0) : (customCount > 0);
                 const isExpanded = expandedWeaponName === name;
 
                 const card = document.createElement('div');
@@ -6291,9 +6295,15 @@
 
                 const countLabel = document.createElement('span');
                 countLabel.className = 'weapon-scope-count';
-                countLabel.textContent = hasCustom
-                    ? `${customCount} custom scope(s) · tap to edit`
-                    : 'Global pull · tap to set scopes';
+                if (isLevel2) {
+                    countLabel.textContent = hasCustom
+                        ? 'Custom pull · tap to edit'
+                        : 'Global pull · tap to edit';
+                } else {
+                    countLabel.textContent = hasCustom
+                        ? `${customCount} custom scope(s) · tap to edit`
+                        : 'Global pull · tap to set scopes';
+                }
 
                 labelWrap.appendChild(label);
                 labelWrap.appendChild(countLabel);
@@ -6345,77 +6355,124 @@
                     });
                 };
 
+                const sendWeaponStrengthUpdate = (val) => {
+                    sendToCpp("change_weapon_recoil", {
+                        name: name,
+                        strength: parseInt(val)
+                    });
+                };
+
                 const refreshCardState = () => {
-                    const enabledCount = scopeList.querySelectorAll('.weapon-scope-row.is-enabled').length;
-                    countLabel.textContent = enabledCount > 0
-                        ? `${enabledCount} custom scope(s) · tap to edit`
-                        : 'Global pull · tap to set scopes';
+                    let enabledCount = 0;
+                    if (isLevel2) {
+                        const slider = scopeList.querySelector('.weapon-slider-input');
+                        enabledCount = (slider && parseInt(slider.value) > 0) ? 1 : 0;
+                        countLabel.textContent = enabledCount > 0 ? 'Custom pull · tap to edit' : 'Global pull · tap to edit';
+                    } else {
+                        enabledCount = scopeList.querySelectorAll('.weapon-scope-row.is-enabled').length;
+                        countLabel.textContent = enabledCount > 0
+                            ? `${enabledCount} custom scope(s) · tap to edit`
+                            : 'Global pull · tap to set scopes';
+                    }
                     card.classList.toggle('is-custom-active', enabledCount > 0);
                 };
 
-                scopes.forEach(scopeData => {
-                    const scopeType = scopeData.type;
-                    const enabled = scopeData.enabled === 1 || scopeData.enabled === true;
-                    const pullVal = (scopeData.strength > 0) ? scopeData.strength : globalPull;
-
+                if (isLevel2) {
                     const row = document.createElement('div');
-                    row.className = 'weapon-scope-row' + (enabled ? ' is-enabled' : ' is-disabled');
+                    row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:10px 14px;';
 
-                    const scopeLabelCol = document.createElement('div');
-                    scopeLabelCol.className = 'weapon-scope-label';
+                    const lbl = document.createElement('span');
+                    lbl.style.cssText = 'font-size:0.78rem; color:var(--text); min-width:60px;';
+                    lbl.textContent = 'Pull';
 
-                    const scopeIcon = document.createElement('img');
-                    scopeIcon.className = 'weapon-scope-icon';
-                    scopeIcon.src = `${assetBase}ScopeTemplates/${scopeType}.png?t=${Date.now()}`;
-                    scopeIcon.alt = scopeType;
-                    scopeIcon.onerror = () => { scopeIcon.style.display = 'none'; };
-                    scopeLabelCol.appendChild(scopeIcon);
+                    const slider = document.createElement('input');
+                    slider.type = 'range';
+                    slider.className = 'weapon-slider-input';
+                    slider.min = '0';
+                    slider.max = '25';
+                    slider.value = String(weaponStrength);
 
-                    const scopeName = document.createElement('span');
-                    scopeName.className = 'weapon-scope-name';
-                    scopeName.textContent = formatScopeLabel(scopeType);
+                    const valLabel = document.createElement('span');
+                    valLabel.style.cssText = 'font-size:0.82rem; font-weight:700; color:var(--accent); min-width:40px; text-align:right; font-family:var(--mono);';
+                    valLabel.textContent = `${slider.value}px`;
 
-                    const toggle = createMiniSwitch(enabled, (isOn) => {
-                        row.classList.toggle('is-enabled', isOn);
-                        row.classList.toggle('is-disabled', !isOn);
-                        pullSlider.disabled = !isOn;
-                        pullValLabel.style.color = isOn ? 'var(--accent)' : 'var(--muted)';
-                        pullValLabel.textContent = isOn ? `${pullSlider.value}px` : `${globalPull}px`;
-                        sendScopeUpdate(scopeType, isOn, pullSlider.value);
+                    slider.addEventListener('input', () => {
+                        valLabel.textContent = `${slider.value}px`;
+                    });
+                    slider.addEventListener('change', () => {
+                        sendWeaponStrengthUpdate(slider.value);
                         refreshCardState();
                     });
 
-                    const pullWrap = document.createElement('div');
-                    pullWrap.className = 'weapon-scope-pull';
-
-                    const pullSlider = document.createElement('input');
-                    pullSlider.type = 'range';
-                    pullSlider.min = '0';
-                    pullSlider.max = '25';
-                    pullSlider.value = String(pullVal);
-                    pullSlider.disabled = !enabled;
-
-                    const pullValLabel = document.createElement('span');
-                    pullValLabel.className = 'scope-val';
-                    pullValLabel.textContent = enabled ? `${pullSlider.value}px` : `${globalPull}px`;
-                    pullValLabel.style.color = enabled ? 'var(--accent)' : 'var(--muted)';
-
-                    pullSlider.addEventListener('input', () => {
-                        pullValLabel.textContent = `${pullSlider.value}px`;
-                    });
-                    pullSlider.addEventListener('change', () => {
-                        if (toggle.input.checked) sendScopeUpdate(scopeType, true, pullSlider.value);
-                    });
-
-                    pullWrap.appendChild(pullSlider);
-                    pullWrap.appendChild(pullValLabel);
-
-                    row.appendChild(scopeLabelCol);
-                    row.appendChild(scopeName);
-                    row.appendChild(toggle.root);
-                    row.appendChild(pullWrap);
+                    row.appendChild(lbl);
+                    row.appendChild(slider);
+                    row.appendChild(valLabel);
                     scopeList.appendChild(row);
-                });
+                } else {
+                    scopes.forEach(scopeData => {
+                        const scopeType = scopeData.type;
+                        const enabled = scopeData.enabled === 1 || scopeData.enabled === true;
+                        const pullVal = (scopeData.strength > 0) ? scopeData.strength : globalPull;
+
+                        const row = document.createElement('div');
+                        row.className = 'weapon-scope-row' + (enabled ? ' is-enabled' : ' is-disabled');
+
+                        const scopeLabelCol = document.createElement('div');
+                        scopeLabelCol.className = 'weapon-scope-label';
+
+                        const scopeIcon = document.createElement('img');
+                        scopeIcon.className = 'weapon-scope-icon';
+                        scopeIcon.src = `${assetBase}ScopeTemplates/${scopeType}.png?t=${Date.now()}`;
+                        scopeIcon.alt = scopeType;
+                        scopeIcon.onerror = () => { scopeIcon.style.display = 'none'; };
+                        scopeLabelCol.appendChild(scopeIcon);
+
+                        const scopeName = document.createElement('span');
+                        scopeName.className = 'weapon-scope-name';
+                        scopeName.textContent = formatScopeLabel(scopeType);
+
+                        const toggle = createMiniSwitch(enabled, (isOn) => {
+                            row.classList.toggle('is-enabled', isOn);
+                            row.classList.toggle('is-disabled', !isOn);
+                            pullSlider.disabled = !isOn;
+                            pullValLabel.style.color = isOn ? 'var(--accent)' : 'var(--muted)';
+                            pullValLabel.textContent = isOn ? `${pullSlider.value}px` : `${globalPull}px`;
+                            sendScopeUpdate(scopeType, isOn, pullSlider.value);
+                            refreshCardState();
+                        });
+
+                        const pullWrap = document.createElement('div');
+                        pullWrap.className = 'weapon-scope-pull';
+
+                        const pullSlider = document.createElement('input');
+                        pullSlider.type = 'range';
+                        pullSlider.min = '0';
+                        pullSlider.max = '25';
+                        pullSlider.value = String(pullVal);
+                        pullSlider.disabled = !enabled;
+
+                        const pullValLabel = document.createElement('span');
+                        pullValLabel.className = 'scope-val';
+                        pullValLabel.textContent = enabled ? `${pullSlider.value}px` : `${globalPull}px`;
+                        pullValLabel.style.color = enabled ? 'var(--accent)' : 'var(--muted)';
+
+                        pullSlider.addEventListener('input', () => {
+                            pullValLabel.textContent = `${pullSlider.value}px`;
+                        });
+                        pullSlider.addEventListener('change', () => {
+                            if (toggle.input.checked) sendScopeUpdate(scopeType, true, pullSlider.value);
+                        });
+
+                        pullWrap.appendChild(pullSlider);
+                        pullWrap.appendChild(pullValLabel);
+
+                        row.appendChild(scopeLabelCol);
+                        row.appendChild(scopeName);
+                        row.appendChild(toggle.root);
+                        row.appendChild(pullWrap);
+                        scopeList.appendChild(row);
+                    });
+                }
 
                 card.appendChild(topRow);
                 card.appendChild(scopeList);
@@ -6911,6 +6968,13 @@
 
                 appendLog(`GFX sync: quality=${quality} (final:${finalQuality}), fps=${fps} (final:${finalFps}), style=${style} (final:${finalStyle})`);
                 showToast('GFX Synced', 'Current game settings loaded.', false);
+            },
+
+            setLicenseLevel: function (level) {
+                const scopeSection = document.getElementById('scope-type-recognition-section');
+                if (scopeSection) {
+                    scopeSection.style.display = (level < 3) ? 'none' : '';
+                }
             }
         };
 
